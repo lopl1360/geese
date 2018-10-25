@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+# Create your views here.
+@csrf_exempt
+def index(request):
+    if request.method == 'POST':
+	return handlePost(request);
+    else:
+    	return handleGet(request);
+
+
+
+def handlePost(request):
+	try:
+		url = request.POST.get("URL", "555555");
+		return HttpResponse(url);
+	except Exception as e:
+		return HttpResponse("rrrrrrttttttttttttttt" + str(e));
+
+def handleGet(request):
+	return HttpResponse("hello world...........");
