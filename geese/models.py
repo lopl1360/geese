@@ -5,6 +5,6 @@ from django.db import models
 
 # Create your models here.
 class URL(models.Model):
-    url = models.TextField(null=False)
+    url = models.CharField(max_length=255)
     short = models.CharField(max_length=32)
     count = models.IntegerField(default=0)
