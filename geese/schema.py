@@ -3,8 +3,8 @@ import graphene
 from geese.models import URL
 from graphene import ObjectType, Node, Schema, relay
 from graphene_django.fields import DjangoConnectionField
-from graphene_django.types import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+from graphene_django.types import DjangoObjectType
 from graphene import InputObjectType
 from geese.helpers import get_object, get_errors, update_create_instance
 
@@ -12,7 +12,10 @@ class URLNode(DjangoObjectType):
 
     class Meta:
         model = URL
-	filter_fields = ['short', 'url']
+	filter_fields = {
+            'id': ['exact']
+            }
+
         interfaces = (relay.Node, )
 
 class UrlCreateInput(InputObjectType):
@@ -20,19 +23,19 @@ class UrlCreateInput(InputObjectType):
 	short = graphene.String(required=True)
 	count = graphene.Int(required=False)
 
-class CreateUrl(graphene.Mutation):
-     class Arguments:
-	url = graphene.String(required=True)
-	short = graphene.String(required=True)
-	count = graphene.Int(required=False)
-
-    result = graphene.Boolean()
-    url = graphene.Field(lambda: URL)
-
-    def mutate(self, info, url):
-        url = URL(url=url)
-        result = True
-        return CreateUrl(url=url, result=result)
+#class CreateUrl(graphene.Mutation):
+#     class Arguments:
+#	url = graphene.String(required=True)
+#	short = graphene.String(required=True)
+#	count = graphene.Int(required=False)
+#
+#    result = graphene.Boolean()
+#    url = graphene.Field(lambda: URL)
+#
+#    def mutate(self, info, url):
+#        url = URL(url=url)
+#        result = True
+#        return CreateUrl(url=url, result=result)
 
 class CreateUrl(relay.ClientIDMutation):
   
@@ -52,19 +55,10 @@ class CreateUrl(relay.ClientIDMutation):
 
 class Query(ObjectType):
         all_urls = graphene.List(URLNode)
-	one_url = graphene.Field(URLNode)
+	urls = DjangoFilterConnectionField(URLNode)
 
-        #def resolve_all_urls(self, args, context, info):
 	def resolve_all_urls(self, args):
 	    return URL.objects.all()
-
-	def resolve_one_url(self, args):
-    		#short2 = args.get('short')
-
-		#if short2 is not None:
-	    	return URL.objects.get(short="aaaaa")
-
-		#return None
 
 class Mutation(ObjectType):
      create_url = CreateUrl.Field()
